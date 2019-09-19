@@ -1,8 +1,28 @@
+var reqsPerQ = 10
+
+class ArtObject{
+  constructor(name, artist, yearCreated){
+    this.name = name;
+    this.artist = artist;
+    this.yearCreated = yearCreated;
+  }
+
+  name() {
+    return this.name;
+  }
+
+  artist() {
+    return this.artist;
+  }
+
+  yearCreated(){
+    return this.yearCreated;
+  }
+}
+
 let api = 'https://api.harvardartmuseums.org/'
 let apikey = 'eeb7e1a0-d3f4-11e9-a98b-17c2205dae62'
-// fetch(url)
-//   .then(response => console.log(response))//document.getElementById('gallery-list').innerHTML = JSON.parse(response))
-//   .catch(error => console.error(error))
+
 getGalleryList()
 
 function showGalleryList() {
@@ -22,8 +42,20 @@ window.onclick = function(event) {
   }
 }
 
-function showGalleryContents(){
-  
+async function showGalleryContents(id){
+  console.log(id);
+  //let url = buildURL({}, 'gallery/' +id); //url to get gallery
+  let url = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
+  let response = await fetch(url)
+  let data = await response.json()
+  console.log(data)
+  if (data.pages < 1){//no objects render
+
+  }else if (data.pages == 1) {
+
+  }else{//call for each page
+
+  }
 }
 
 function buildURL(params, resourceType){
@@ -33,7 +65,7 @@ function buildURL(params, resourceType){
   url.searchParams.append('apikey', apikey)
   return url
 }
-async function getGalleryList(){
+async function getGalleryList(res){
   let galleryList = []
   let url = buildURL({}, 'gallery')
   let response = await fetch(url)
@@ -57,7 +89,7 @@ async function getGalleryList(){
     }
   }
   galleryList.forEach(function(gallery){
-    document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents()">' + gallery.name + '</a>'
+    document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents('+ gallery.id +')">' + gallery.name + '</a>'
   })
 
 }
