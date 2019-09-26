@@ -1,4 +1,4 @@
-var reqsPerQ = 10
+let reqsPerQ = 10
 
 class ArtObject{
   constructor(name, artist, yearCreated){
@@ -31,10 +31,10 @@ function showGalleryList() {
 //code from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_dropdown
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
+    let dropdowns = document.getElementsByClassName("dropdown-content");
+    let i;
     for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
+      let openDropdown = dropdowns[i];
       if (openDropdown.classList.contains('show')) {
         openDropdown.classList.remove('show');
       }
@@ -43,15 +43,20 @@ window.onclick = function(event) {
 }
 
 async function showGalleryContents(id){
-  console.log(id);
-  //let url = buildURL({}, 'gallery/' +id); //url to get gallery
-  let url = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
-  let response = await fetch(url)
+  let galleryUrl = buildURL({}, 'gallery/' +id); //url to get gallery
+	let response = await fetch(galleryUrl)
   let data = await response.json()
-  console.log(data)
-  if (data.pages < 1){//no objects render
+	// console.log(data)
+	let name = data.name + ((data.theme != null) ? (': ' + data.theme) : '');
+	// console.log(name)
+	document.getElementById('content-list').innerHTML = '<h2> '+ name + '</h2>'
+  let golUrl = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
+  let response2 = await fetch(golUrl)
+  let data2 = await response2.json()
+  console.log(data2)
+  if (data2.pages < 1){//no objects render
 
-  }else if (data.pages == 1) {
+  }else if (data2.pages == 1) {
 
   }else{//call for each page
 
@@ -88,8 +93,11 @@ async function getGalleryList(res){
       })
     }
   }
+	galleryList.sort(function(a,b){
+		return a.name > b.name
+	})
   galleryList.forEach(function(gallery){
-    document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents('+ gallery.id +')">' + gallery.name + '</a>'
+    document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents('+ gallery.id + ')">' + gallery.name + '</a>'
   })
 
 }
