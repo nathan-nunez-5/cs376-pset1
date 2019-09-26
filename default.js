@@ -1,22 +1,23 @@
 let reqsPerQ = 10
 
 class ArtObject{
-  constructor(name, artist, yearCreated){
-    this.name = name;
-    this.artist = artist;
-    this.yearCreated = yearCreated;
+  constructor(id, name, artist, yearCreated){
+		this.id = id
+    this.name = name
+    this.artist = artist
+    this.yearCreated = yearCreated
   }
 
   name() {
-    return this.name;
+    return this.name
   }
 
   artist() {
-    return this.artist;
+    return this.artist
   }
 
   yearCreated(){
-    return this.yearCreated;
+    return this.yearCreated
   }
 }
 
@@ -46,17 +47,18 @@ async function showGalleryContents(id){
   let galleryUrl = buildURL({}, 'gallery/' +id); //url to get gallery
 	let response = await fetch(galleryUrl)
   let data = await response.json()
-	// console.log(data)
 	let name = data.name + ((data.theme != null) ? (': ' + data.theme) : '');
-	// console.log(name)
-	document.getElementById('content-list').innerHTML = '<h2> '+ name + '</h2>'
+	document.getElementById('content-title').innerHTML = '<h2> '+ name + '</h2>'
+
   let golUrl = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
   let response2 = await fetch(golUrl)
   let data2 = await response2.json()
-  console.log(data2)
-  if (data2.pages < 1){//no objects render
-
+  //console.log(data2)
+	let objList = []
+  if (data2.info.pages < 1){//no objects render
+		document.getElementById('content-list').innerHTML = '<h1 class="header"> No objects found in this gallery. </h1>'
   }else if (data2.pages == 1) {
+
 
   }else{//call for each page
 

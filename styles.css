@@ -24,3 +24,8 @@
 .dropdown a:hover {background-color: #ddd;}
 
 .show {display: block;}
+
+
+.header {
+	text-align: center;
+}
