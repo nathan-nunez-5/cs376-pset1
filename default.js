@@ -51,17 +51,31 @@ async function showGalleryContents(id){
 	document.getElementById('content-title').innerHTML = '<h2> '+ name + '</h2>'
 
   let golUrl = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
-  let response2 = await fetch(golUrl)
-  let data2 = await response2.json()
+  response = await fetch(golUrl)
+  data = await response.json()
   //console.log(data2)
 	let objList = []
-  if (data2.info.pages < 1){//no objects render
+	let pages = data.info.pages
+  if (pages < 1){//no objects render
 		document.getElementById('content-list').innerHTML = '<h1 class="header"> No objects found in this gallery. </h1>'
-  }else if (data2.pages == 1) {
-
-
-  }else{//call for each page
-
+  }else{
+		let count = 1;
+		for(let i = 1; i <= pages; i++){
+			let pageiURL = buildURL({gallery: id, page: i}, 'object/')
+	    response = await fetch(pageiURL)
+	    let pageData = await response.json()
+			let recordSize = pageData.records.length
+			//console.log(pageData)
+			for (let i = 0; i < recordSize; i++, count++) {
+				console.log(count);
+				let objId = pageData.records[i].id
+				let objUrl = buildURL({}, 'object/'+objId)
+				response = await fetch(objUrl)
+				data = await response.json()
+				console.log(data)
+				
+			}
+		}
   }
 }
 
