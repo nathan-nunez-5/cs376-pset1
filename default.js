@@ -1,7 +1,18 @@
 let reqsPerQ = 10
 
+class ImageObject{
+	constructor(imageid, height, width, format, baseimageurl, iiifbaseuri){
+		this.imageid = imageid;
+		this.height = height;
+		this.width = width;
+		this.format = format;
+		this.baseurl = baseimageurl;
+		this.iiifuri = iiifbaseuri;
+	}
+}
+
 class ArtObject{
-  constructor(id, name, artist, yearCreated){
+  constructor(id, name, imgObject){
 		this.id = id
     this.name = name
     this.artist = artist
@@ -73,7 +84,7 @@ async function showGalleryContents(id){
 				response = await fetch(objUrl)
 				data = await response.json()
 				console.log(data)
-				
+
 			}
 		}
   }
