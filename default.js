@@ -2,12 +2,23 @@ let reqsPerQ = 10
 
 class ImageObject{
 	constructor(imageid, height, width, format, baseimageurl, iiifbaseuri){
-		this.imageid = imageid;
-		this.height = height;
-		this.width = width;
-		this.format = format;
-		this.baseurl = baseimageurl;
-		this.iiifuri = iiifbaseuri;
+		this.imageid = imageid
+		this.height = height
+		this.width = width
+		this.format = format
+		this.baseurl = baseimageurl
+		this.iiifuri = iiifbaseuri
+		this.dh = 150 //default height
+		this.dw = 150 //defualt width
+	}
+
+	displayImg(){
+		let imgurl = this.baseurl + '?height=' + 150 + '&width=' + 150
+		return  '<img src="' + imgurl + '">'
+	}
+
+	expandImg(){
+
 	}
 }
 
@@ -15,21 +26,14 @@ class ArtObject{
   constructor(id, name, imgObject){
 		this.id = id
     this.name = name
-    this.artist = artist
-    this.yearCreated = yearCreated
+    this.img = imgObject
   }
 
-  name() {
-    return this.name
-  }
+	display(){
+		let imgHTML = '<div class="content-image">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
+		return '<div class="content-result">' + imgHTML + "<br>" + this.id + "<br>" + this.name + " </div>"
 
-  artist() {
-    return this.artist
-  }
-
-  yearCreated(){
-    return this.yearCreated
-  }
+	}
 }
 
 let api = 'https://api.harvardartmuseums.org/'
@@ -55,10 +59,10 @@ window.onclick = function(event) {
 }
 
 async function showGalleryContents(id){
-  let galleryUrl = buildURL({}, 'gallery/' +id); //url to get gallery
+  let galleryUrl = buildURL({}, 'gallery/' +id) //url to get gallery
 	let response = await fetch(galleryUrl)
   let data = await response.json()
-	let name = data.name + ((data.theme != null) ? (': ' + data.theme) : '');
+	let name = data.name + ((data.theme != null) ? (': ' + data.theme) : '')
 	document.getElementById('content-title').innerHTML = '<h2> '+ name + '</h2>'
 
   let golUrl = buildURL({gallery: id}, 'object/'); //url to get objects in gallery
@@ -83,11 +87,16 @@ async function showGalleryContents(id){
 				let objUrl = buildURL({}, 'object/'+objId)
 				response = await fetch(objUrl)
 				data = await response.json()
-				console.log(data)
-
+				objList.push(buildObject(data))
 			}
 		}
   }
+	//sort here
+	document.getElementById('content-list').innerHTML = "";
+	objList.forEach(function(obj){
+    document.getElementById('content-list').innerHTML += obj.display()
+  })
+
 }
 
 function buildURL(params, resourceType){
@@ -97,6 +106,7 @@ function buildURL(params, resourceType){
   url.searchParams.append('apikey', apikey)
   return url
 }
+
 async function getGalleryList(res){
   let galleryList = []
   let url = buildURL({}, 'gallery')
@@ -126,5 +136,17 @@ async function getGalleryList(res){
   galleryList.forEach(function(gallery){
     document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents('+ gallery.id + ')">' + gallery.name + '</a>'
   })
+}
 
+function buildImage(imageArray){
+	let ie = imageArray[0] //imageElement
+	let io = new ImageObject(ie.imageid, ie.height, ie.width, ie.format, ie.baseimageurl, ie.iiifbaseuri) //ImageObject
+	return io
+}
+
+
+function buildObject(data){
+	let io = (data.images.length < 1) ? null : buildImage(data.images)
+	let ao = new ArtObject(data.id, data.title, io)
+	return ao
 }
