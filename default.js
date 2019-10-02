@@ -1,4 +1,15 @@
+// class PageState{
+// 	constructor()
+// }
+
+let api = 'https://api.harvardartmuseums.org/'
+let apikey = 'eeb7e1a0-d3f4-11e9-a98b-17c2205dae62'
+
 let reqsPerQ = 10
+let currentObjectList = null
+let currentObjectID = null
+
+getGalleryList()
 
 class ImageObject{
 	constructor(imageid, height, width, format, baseimageurl, iiifbaseuri){
@@ -30,20 +41,18 @@ class ArtObject{
   }
 
 	display(){
-		let imgHTML = '<div class="content-image">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
+		let imgHTML = '<div class="content-image" onClick = "showDetails(' + this.id + ')">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
 		return '<div class="content-result">' + imgHTML + "<br>" + this.id + "<br>" + this.name + " </div>"
 
 	}
 }
 
-let api = 'https://api.harvardartmuseums.org/'
-let apikey = 'eeb7e1a0-d3f4-11e9-a98b-17c2205dae62'
 
-getGalleryList()
 
 function showGalleryList() {
   document.getElementById("gallery-dropdown").classList.toggle("show");
 }
+
 //code from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_dropdown
 window.onclick = function(event) {
   if (!event.target.matches('.dropbtn')) {
