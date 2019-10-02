@@ -5,9 +5,12 @@
 let api = 'https://api.harvardartmuseums.org/'
 let apikey = 'eeb7e1a0-d3f4-11e9-a98b-17c2205dae62'
 
+
+//make sure state handles well/better
 let reqsPerQ = 10
 let currentObjectList = null
-let currentObjectID = null
+let currentArtObject = null
+let currentExImageObject = null
 let detailsWanted = ['title', 'accessionyear', 'dated', 'datebegin', 'labeltext', 'dateend', 'classification', 'medium', 'technique', 'period', 'century', 'culture', 'dimensions', 'creditline', 'department', 'division']
 
 getGalleryList()
@@ -24,13 +27,19 @@ class ImageObject{
 		this.dw = 150 //defualt width
 	}
 
-	displayImgHTML(){
+	displayImgHTML(expandable){
 		let imgurl = this.baseurl + '?height=' + 150 + '&width=' + 150
-		return  '<img src="' + imgurl + '">'
+		if(expandable === undefined){
+			return  '<img src="' + imgurl + '">'
+		}else{
+			return  '<div id="image-'+ this.imageid +'" onclick=expandImageW(' + this.imageid +')> <img src="' + imgurl + '"> </div>'
+			//return  '<img id="image-'+ this.imageid +'" src="' + imgurl + '" onclick=expandImageW()>'
+		}
 	}
 
 	expandImg(){
-
+		document.getElementById('full-size-image').innerHTML = '<img onclick="hideFullSizeImage()" src="' + this.baseurl + '">'
+		currentExImageObject = null
 	}
 }
 
@@ -70,25 +79,34 @@ class ArtObject{
 	}
 }
 
+function hideFullSizeImage(){
+	document.getElementById('full-size-image').innerHTML = ''
+}
+
+function expandImageW(imageid){
+	let currentIO = currentArtObject.images.find((io) => { return io.imageid == imageid })
+	currentIO.expandImg()
+}
+
 function displayIOListHTML(ioList){
 	let outHTML = ''
 	for(let i = 0; i < ioList.length; i++){
-		outHTML += ioList[i].displayImgHTML()
+		outHTML += ioList[i].displayImgHTML(true)
 	}
 	return outHTML
 }
 
 function showAODetails(id){
-	currentObjectID = id
+
 	if(currentObjectList == null){
 		console.log('no object list')
 	}
 	let currentAO = currentObjectList.find((ao) => { return ao.id == id })
+	currentArtObject = currentAO
 	if(this.showingContents){
 		currentAO.redisplay()
 		this.showingContents = false
 	}else{
-		console.log('showdetails')
 		currentAO.showDetails()
 		this.showingContents = true
 	}
