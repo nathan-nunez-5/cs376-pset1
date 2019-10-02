@@ -13,8 +13,6 @@ let currentArtObject = null
 let currentExImageObject = null
 let detailsWanted = ['title', 'accessionyear', 'dated', 'datebegin', 'labeltext', 'dateend', 'classification', 'medium', 'technique', 'period', 'century', 'culture', 'dimensions', 'creditline', 'department', 'division']
 
-getGalleryList()
-
 class ImageObject{
 	constructor(imageid, height, width, format, baseimageurl, iiifbaseuri){
 		this.imageid = imageid
