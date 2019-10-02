@@ -41,13 +41,27 @@ class ArtObject{
   }
 
 	display(){
-		let imgHTML = '<div class="content-image" onClick = "showDetails(' + this.id + ')">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
+		let imgHTML = '<div class="content-image" onclick="showAODetails(' + this.id + ')">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
 		return '<div class="content-result">' + imgHTML + "<br>" + this.id + "<br>" + this.name + " </div>"
 
 	}
+
+	showDetails(){
+		console.log('details')
+		console.log(this.id)
+		console.log(this.name)
+	}
 }
 
-
+function showAODetails(id){
+	if(currentObjectList == null){
+		console.log('no object list')
+	}
+	console.log(id)
+	console.log(currentObjectList)
+	let currentAO = currentObjectList.find((ao) => { return ao.id == id })
+	currentAO.showDetails()
+}
 
 function showGalleryList() {
   document.getElementById("gallery-dropdown").classList.toggle("show");
@@ -105,7 +119,7 @@ async function showGalleryContents(id){
 	objList.forEach(function(obj){
     document.getElementById('content-list').innerHTML += obj.display()
   })
-
+	currentObjectList = objList
 }
 
 function buildURL(params, resourceType){
@@ -139,9 +153,7 @@ async function getGalleryList(res){
       })
     }
   }
-	galleryList.sort(function(a,b){
-		return a.name > b.name
-	})
+	galleryList.sort((a,b) => {	return a.name > b.name })
   galleryList.forEach(function(gallery){
     document.getElementById('gallery-dropdown').innerHTML += '<a onclick="showGalleryContents('+ gallery.id + ')">' + gallery.name + '</a>'
   })
