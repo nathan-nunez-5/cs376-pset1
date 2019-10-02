@@ -8,6 +8,7 @@ let apikey = 'eeb7e1a0-d3f4-11e9-a98b-17c2205dae62'
 let reqsPerQ = 10
 let currentObjectList = null
 let currentObjectID = null
+let detailsWanted = ['title', 'accessionyear', 'dated', 'datebegin', 'labeltext', 'dateend', 'classification', 'medium', 'technique', 'period', 'century', 'culture', 'dimensions', 'creditline', 'department', 'division']
 
 getGalleryList()
 
@@ -23,7 +24,7 @@ class ImageObject{
 		this.dw = 150 //defualt width
 	}
 
-	displayImg(){
+	displayImgHTML(){
 		let imgurl = this.baseurl + '?height=' + 150 + '&width=' + 150
 		return  '<img src="' + imgurl + '">'
 	}
@@ -33,34 +34,64 @@ class ImageObject{
 	}
 }
 
+//<div class="image-container" onclick="expandAOImage">
+
 class ArtObject{
-  constructor(id, name, imgObject){
+  constructor(id, name, deets, imgObject, imgList){
 		this.id = id
     this.name = name
-    this.img = imgObject
+		this.details = deets
+		this.showingContents = false
+    this.defimg = imgObject
+		this.images = imgList
   }
 
 	display(){
-		let imgHTML = '<div class="content-image" onclick="showAODetails(' + this.id + ')">' + ((this.img == null) ? 'there is no image available :(' : this.img.displayImg()) + '</div>'
-		return '<div class="content-result">' + imgHTML + "<br>" + this.id + "<br>" + this.name + " </div>"
+		let imgHTML = '<div class="content-image" >' + ((this.defimg == null) ? 'there is no image available :(' : this.defimg.displayImgHTML()) + '</div>'
+		return '<div class="content-result" id="object-'+ this.id +'" onclick="showAODetails(' + this.id + ')">' + imgHTML + '<br>' + this.name + " </div>"
 
+	}
+
+	redisplay(){
+		let imgHTML = '<div class="content-image" >' + ((this.defimg == null) ? 'there is no image available :(' : this.defimg.displayImgHTML()) + '</div>'
+		document.getElementById('object-'+this.id).innerHTML = imgHTML + '<br>' + this.name
 	}
 
 	showDetails(){
-		console.log('details')
-		console.log(this.id)
-		console.log(this.name)
+		let imagesHTML = '';
+		if(this.images != null || this.images.length > 0){
+			imagesHTML = displayIOListHTML(this.images)
+		}else{
+			imagesHTML = 'there is no image available :( <br>'
+		}
+		let detailHTML = ''
+		this.details.forEach((detail) => {detailHTML += detail + '<br>'})
+		document.getElementById('object-'+this.id).innerHTML = imagesHTML + '<br>' +detailHTML
 	}
 }
 
+function displayIOListHTML(ioList){
+	let outHTML = ''
+	for(let i = 0; i < ioList.length; i++){
+		outHTML += ioList[i].displayImgHTML()
+	}
+	return outHTML
+}
+
 function showAODetails(id){
+	currentObjectID = id
 	if(currentObjectList == null){
 		console.log('no object list')
 	}
-	console.log(id)
-	console.log(currentObjectList)
 	let currentAO = currentObjectList.find((ao) => { return ao.id == id })
-	currentAO.showDetails()
+	if(this.showingContents){
+		currentAO.redisplay()
+		this.showingContents = false
+	}else{
+		console.log('showdetails')
+		currentAO.showDetails()
+		this.showingContents = true
+	}
 }
 
 function showGalleryList() {
@@ -105,7 +136,6 @@ async function showGalleryContents(id){
 			let recordSize = pageData.records.length
 			//console.log(pageData)
 			for (let i = 0; i < recordSize; i++, count++) {
-				console.log(count);
 				let objId = pageData.records[i].id
 				let objUrl = buildURL({}, 'object/'+objId)
 				response = await fetch(objUrl)
@@ -159,15 +189,18 @@ async function getGalleryList(res){
   })
 }
 
-function buildImage(imageArray){
-	let ie = imageArray[0] //imageElement
+function buildImage(ie){//imageElement
 	let io = new ImageObject(ie.imageid, ie.height, ie.width, ie.format, ie.baseimageurl, ie.iiifbaseuri) //ImageObject
 	return io
 }
 
 
 function buildObject(data){
-	let io = (data.images.length < 1) ? null : buildImage(data.images)
-	let ao = new ArtObject(data.id, data.title, io)
+	let io = (data.images.length < 1) ? null : buildImage(data.images[0])
+	let detailList = []
+	Object.keys(data).forEach(key => { if(data[key] != null && detailsWanted.includes(key)){	detailList.push(key + ': ' + data[key]) } })
+	let ioList = []
+	data.images.forEach(imageData => {ioList.push(buildImage(imageData))})
+	let ao = new ArtObject(data.id, data.title, detailList, io, ioList)
 	return ao
 }
